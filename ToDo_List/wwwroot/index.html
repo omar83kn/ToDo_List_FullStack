@@ -1,0 +1,867 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ToDo_List App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f3c88 0, #0b1423 40%, #060811 100%);
+            color: #222;
+        }
+
+        .app-shell {
+            max-width: 1300px;
+        }
+
+        .glass-card {
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .section-card {
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e6f0;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        .section-card-header {
+            background: linear-gradient(90deg, #0d6efd 0%, #5b8def 60%, #8f9cf7 100%);
+            color: #fff;
+            border-radius: 14px 14px 0 0 !important;
+        }
+
+            .section-card-header span.icon {
+                font-size: 1.1rem;
+                margin-right: 0.25rem;
+            }
+
+        .person-item,
+        .todolist-item {
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+
+            .person-item:hover,
+            .todolist-item:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.12);
+            }
+
+            .person-item.active,
+            .todolist-item.active {
+                background: linear-gradient(90deg, #0d6efd, #3f8cff);
+                color: #fff !important;
+            }
+
+                .person-item.active .text-muted,
+                .todolist-item.active .text-muted {
+                    color: rgba(255, 255, 255, 0.85) !important;
+                }
+
+        .badge-category {
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+        }
+
+        .todo-item-done {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .scroll-area {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .summary-pill {
+            border-radius: 999px;
+            padding: 0.4rem 0.8rem;
+            background: rgba(15,23,42,0.06);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: #6b7280;
+        }
+
+        .navbar-brand span {
+            font-weight: 600;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #111827 0, #1f2937 40%, #0f172a 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5f5;
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg mb-4 border-bottom border-dark-subtle">
+        <div class="container-fluid app-shell">
+            <a class="navbar-brand text-white" href="#">
+                <i class="bi bi-check2-square me-2"></i>
+                <span>ToDo_List Dashboard</span>
+            </a>
+            <span class="text-secondary small d-none d-md-inline">
+                Using <code>/api/*</code> endpoints
+            </span>
+        </div>
+    </nav>
+
+    <div class="container app-shell">
+        <!-- SUMMARY BAR -->
+        <div class="glass-card p-3 mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="summary-pill d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <div class="summary-label">Selected Person</div>
+                            <div class="summary-value" id="summaryPerson">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-pill d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                            <i class="bi bi-list-task"></i>
+                        </div>
+                        <div>
+                            <div class="summary-label">Selected List</div>
+                            <div class="summary-value" id="summaryList">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-pill d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="summary-label">Items</div>
+                            <div class="summary-value">
+                                <span id="summaryItemsTotal">0</span>
+                                <span class="text-muted small">total</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="summary-label">Completed</div>
+                            <div class="summary-value text-success">
+                                <span id="summaryItemsDone">0</span>
+                                <span class="text-muted small">done</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="summary-label">Progress</div>
+                            <div class="summary-value">
+                                <span id="summaryItemsPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="row g-3">
+            <!-- LEFT SIDE: Persons + TodoLists -->
+            <div class="col-lg-4">
+                <!-- Persons -->
+                <div class="section-card mb-3">
+                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="icon"><i class="bi bi-people"></i></span>
+                            <span class="fw-semibold">Persons</span>
+                        </div>
+                        <span class="small opacity-75">
+                            Create a profile, then create lists for that person
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2 scroll-area" id="personsList"></div>
+
+                        <hr />
+                        <form id="personForm" class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label small mb-1">Full name</label>
+                                <input class="form-control" id="personName"
+                                       placeholder="Example: Omar Kukhun" required />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small mb-1">Email</label>
+                                <input class="form-control" id="personEmail"
+                                       placeholder="Example: user@example.com"
+                                       type="email" required />
+                            </div>
+                            <div class="col-12 d-grid">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                    <i class="bi bi-person-plus me-1"></i>Add Person
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TodoLists for selected person -->
+                <div class="section-card">
+                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="icon"><i class="bi bi-collection"></i></span>
+                            <span class="fw-semibold">Todo Lists</span>
+                        </div>
+                        <span class="small opacity-75">
+                            <span id="currentPersonLabel"></span>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2 scroll-area" id="todoLists"></div>
+
+                        <hr />
+                        <form id="todoListForm" class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label small mb-1">New list title</label>
+                                <input class="form-control" id="todoListTitle"
+                                       placeholder="Example: Study tasks, Work tasks..."
+                                       required />
+                            </div>
+                            <div class="col-12 d-grid">
+                                <button class="btn btn-success btn-sm" type="submit">
+                                    <i class="bi bi-plus-circle me-1"></i>Add List
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-2 small text-muted">
+                            First select a person, then create one or more todo lists for that person.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Categories + ListItems -->
+            <div class="col-lg-8">
+                <!-- Categories -->
+                <div class="section-card mb-3">
+                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="icon"><i class="bi bi-tags"></i></span>
+                            <span class="fw-semibold">Categories</span>
+                        </div>
+                        <span class="small opacity-75">
+                            Optional labels to group and color-code tasks
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="scroll-area mb-2" id="categoriesList"></div>
+
+                        <hr />
+                        <form id="categoryForm" class="row g-2">
+                            <input type="hidden" id="categoryId" value="" />
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1">Category name</label>
+                                <input class="form-control" id="categoryName"
+                                       placeholder="Example: Study, Work, Personal"
+                                       required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small mb-1">Color (optional)</label>
+                                <input class="form-control" id="categoryColor"
+                                       placeholder="Example: #2196F3" />
+                            </div>
+                            <div class="col-md-2 d-grid align-self-end">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                    <i class="bi bi-save me-1"></i>Save
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-1 small text-muted">
+                            Click "Edit" to update an existing category, or type a new name and press "Save" to create a new one.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ListItems for selected TodoList -->
+                <div class="section-card">
+                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="icon"><i class="bi bi-check2-circle"></i></span>
+                            <span class="fw-semibold">Items for Selected List</span>
+                        </div>
+                        <span class="small opacity-75">
+                            <span id="currentListLabel"></span>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="scroll-area mb-3" id="itemsList"></div>
+
+                        <hr />
+                        <form id="itemForm" class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label small mb-1">Item title</label>
+                                <input class="form-control" id="itemTitle"
+                                       placeholder="Example: Finish Big Data homework"
+                                       required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1">Category</label>
+                                <select class="form-select" id="itemCategory">
+                                    <option value="">No category</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1">Due date (optional)</label>
+                                <input class="form-control" id="itemDueAt" type="datetime-local" />
+                            </div>
+                            <div class="col-md-2 d-grid align-self-end">
+                                <button class="btn btn-success btn-sm" type="submit">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Item
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-1 small text-muted">
+                            Select a todo list on the left, then add one or more items to it here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const apiBase = "";
+
+        let currentPersonId = null;
+        let currentPersonName = "";
+        let currentListId = null;
+        let currentListTitle = "";
+        let categoriesCache = [];
+
+        async function apiGet(url) {
+            const res = await fetch(apiBase + url);
+            if (!res.ok) throw new Error(await res.text());
+            return await res.json();
+        }
+
+        async function apiPost(url, body) {
+            const res = await fetch(apiBase + url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            return await res.json();
+        }
+
+        async function apiPut(url, body) {
+            const res = await fetch(apiBase + url, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            try {
+                return await res.json();
+            } catch {
+                return null;
+            }
+        }
+
+        async function apiDelete(url) {
+            const res = await fetch(apiBase + url, { method: "DELETE" });
+            if (!res.ok) throw new Error(await res.text());
+        }
+
+        function updateSummaryPerson() {
+            const el = document.getElementById("summaryPerson");
+            el.textContent = currentPersonId ? currentPersonName : "—";
+        }
+
+        function updateSummaryList() {
+            const el = document.getElementById("summaryList");
+            el.textContent = currentListId ? currentListTitle : "—";
+        }
+
+        function updateSummaryCounts(total, done) {
+            const totalEl = document.getElementById("summaryItemsTotal");
+            const doneEl = document.getElementById("summaryItemsDone");
+            const percentEl = document.getElementById("summaryItemsPercent");
+
+            totalEl.textContent = total;
+            doneEl.textContent = done;
+
+            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            percentEl.textContent = pct + "%";
+        }
+
+        // Persons
+        async function loadPersons() {
+            const persons = await apiGet("/api/Persons");
+            const container = document.getElementById("personsList");
+            container.innerHTML = "";
+
+            if (!persons.length) {
+                container.innerHTML =
+                    '<div class="small text-muted">No persons yet. Create one using the form below.</div>';
+            }
+
+            persons.forEach(p => {
+                const div = document.createElement("div");
+                div.className =
+                    "person-item p-2 rounded mb-1 border bg-light d-flex justify-content-between align-items-center";
+                if (p.personId === currentPersonId) {
+                    div.classList.add("active");
+                }
+                div.innerHTML = `
+                        <div>
+                            <div class="fw-semibold">${p.fullName}</div>
+                            <div class="small text-muted">${p.email}</div>
+                        </div>
+                        <span class="badge bg-secondary">#${p.personId}</span>
+                    `;
+                div.onclick = () => {
+                    currentPersonId = p.personId;
+                    currentPersonName = p.fullName;
+
+                    currentListId = null;
+                    currentListTitle = "";
+                    document.getElementById("currentListLabel").innerText = "";
+                    document.getElementById("itemsList").innerHTML = "";
+
+                    document.getElementById("currentPersonLabel").innerText =
+                        "Lists for " + currentPersonName;
+
+                    updateSummaryPerson();
+                    updateSummaryList();
+                    updateSummaryCounts(0, 0);
+
+                    loadPersons();
+                    loadTodoLists();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        document
+            .getElementById("personForm")
+            .addEventListener("submit", async e => {
+                e.preventDefault();
+                const fullName = document.getElementById("personName").value.trim();
+                const email = document.getElementById("personEmail").value.trim();
+                if (!fullName || !email) return;
+
+                try {
+                    await apiPost("/api/Persons", {
+                        fullName,
+                        email
+                    });
+                    document.getElementById("personForm").reset();
+                    await loadPersons();
+                } catch (err) {
+                    alert("Error adding person:\n" + err);
+                }
+            });
+
+        // TodoLists
+        async function loadTodoLists() {
+            const container = document.getElementById("todoLists");
+            container.innerHTML = "";
+
+            if (!currentPersonId) {
+                container.innerHTML =
+                    '<div class="text-muted small">Select a person first.</div>';
+                return;
+            }
+
+            const lists = await apiGet(
+                `/api/TodoLists/by-person/${currentPersonId}`
+            );
+
+            if (!lists.length) {
+                container.innerHTML =
+                    '<div class="text-muted small">This person has no lists yet. Use the form below to add one.</div>';
+                return;
+            }
+
+            lists.forEach(list => {
+                const div = document.createElement("div");
+                div.className =
+                    "todolist-item p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+                if (list.todoListId === currentListId) div.classList.add("active");
+
+                div.innerHTML = `
+                        <div>
+                            <div class="fw-semibold">${list.title}</div>
+                            <div class="small text-muted">#${list.todoListId} • ${new Date(
+                    list.createdAt
+                ).toLocaleString()}</div>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-select">
+                                <i class="bi bi-folder2-open"></i> Open
+                            </button>
+                            <button class="btn btn-outline-danger btn-delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                div.querySelector(".btn-select").onclick = () => {
+                    currentListId = list.todoListId;
+                    currentListTitle = list.title;
+                    document.getElementById("currentListLabel").innerText =
+                        list.title;
+
+                    updateSummaryList();
+                    loadTodoLists();
+                    loadItems();
+                };
+
+                div.querySelector(".btn-delete").onclick = async ev => {
+                    ev.stopPropagation();
+                    if (!confirm("Delete this list and all of its items?")) return;
+                    try {
+                        await apiDelete(`/api/TodoLists/${list.todoListId}`);
+                        if (currentListId === list.todoListId) {
+                            currentListId = null;
+                            currentListTitle = "";
+                            document.getElementById("currentListLabel").innerText = "";
+                            document.getElementById("itemsList").innerHTML = "";
+                            updateSummaryList();
+                            updateSummaryCounts(0, 0);
+                        }
+                        await loadTodoLists();
+                    } catch (err) {
+                        alert("Error deleting list:\n" + err);
+                    }
+                };
+
+                container.appendChild(div);
+            });
+        }
+
+        document
+            .getElementById("todoListForm")
+            .addEventListener("submit", async e => {
+                e.preventDefault();
+                if (!currentPersonId) {
+                    alert("Please select a person before creating a list.");
+                    return;
+                }
+                const title = document
+                    .getElementById("todoListTitle")
+                    .value.trim();
+                if (!title) return;
+
+                try {
+                    await apiPost("/api/TodoLists", {
+                        personId: currentPersonId,
+                        title
+                    });
+                    document.getElementById("todoListForm").reset();
+                    await loadTodoLists();
+                } catch (err) {
+                    alert("Error adding list:\n" + err);
+                }
+            });
+
+        // Categories
+        async function loadCategories() {
+            const cats = await apiGet("/api/Categories");
+            categoriesCache = cats;
+
+            const container = document.getElementById("categoriesList");
+            container.innerHTML = "";
+
+            if (!cats.length) {
+                container.innerHTML =
+                    '<div class="text-muted small">No categories yet. Create one using the form below.</div>';
+            }
+
+            cats.forEach(cat => {
+                const color = cat.colorHex || "#999999";
+                const item = document.createElement("div");
+                item.className =
+                    "p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+
+                item.innerHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge-category" style="background-color:${color}; color:#fff;">
+                                ${cat.name}
+                            </span>
+                            <span class="small text-muted">#${cat.categoryId} • ${cat.colorHex || ""}</span>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary btn-edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-delete">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    `;
+
+                item.querySelector(".btn-edit").onclick = () => {
+                    document.getElementById("categoryId").value = cat.categoryId;
+                    document.getElementById("categoryName").value = cat.name;
+                    document.getElementById("categoryColor").value =
+                        cat.colorHex || "";
+                };
+
+                item.querySelector(".btn-delete").onclick = async () => {
+                    if (
+                        !confirm(
+                            "Delete this category? Items using it will have CategoryId = null."
+                        )
+                    )
+                        return;
+                    try {
+                        await apiDelete(`/api/Categories/${cat.categoryId}`);
+                        await loadCategories();
+                        populateCategorySelect();
+                        if (currentListId) await loadItems();
+                    } catch (err) {
+                        alert("Error deleting category:\n" + err);
+                    }
+                };
+
+                container.appendChild(item);
+            });
+
+            populateCategorySelect();
+        }
+
+        function populateCategorySelect() {
+            const select = document.getElementById("itemCategory");
+            const current = select.value;
+            select.innerHTML =
+                '<option value="">No category</option>' +
+                categoriesCache
+                    .map(
+                        c =>
+                            `<option value="${c.categoryId}">${c.name}</option>`
+                    )
+                    .join("");
+            if (current) select.value = current;
+        }
+
+        document
+            .getElementById("categoryForm")
+            .addEventListener("submit", async e => {
+                e.preventDefault();
+                const idVal = document.getElementById("categoryId").value;
+                const name = document
+                    .getElementById("categoryName")
+                    .value.trim();
+                const colorHex = document
+                    .getElementById("categoryColor")
+                    .value.trim();
+
+                if (!name) return;
+
+                try {
+                    if (idVal) {
+                        await apiPut(`/api/Categories/${idVal}`, {
+                            name,
+                            colorHex
+                        });
+                    } else {
+                        await apiPost("/api/Categories", {
+                            name,
+                            colorHex
+                        });
+                    }
+                    document.getElementById("categoryForm").reset();
+                    document.getElementById("categoryId").value = "";
+                    await loadCategories();
+                    if (currentListId) await loadItems();
+                } catch (err) {
+                    alert("Error saving category:\n" + err);
+                }
+            });
+
+        // ListItems
+        async function loadItems() {
+            const container = document.getElementById("itemsList");
+            container.innerHTML = "";
+
+            if (!currentListId) {
+                container.innerHTML =
+                    '<div class="text-muted small">Select a todo list on the left to see its items.</div>';
+                updateSummaryCounts(0, 0);
+                return;
+            }
+
+            const items = await apiGet(
+                `/api/ListItems/by-list/${currentListId}`
+            );
+
+            if (!items.length) {
+                container.innerHTML =
+                    '<div class="text-muted small">This list has no items yet. Use the form below to add tasks.</div>';
+                updateSummaryCounts(0, 0);
+                return;
+            }
+
+            let total = items.length;
+            let doneCount = items.filter(i => i.isDone).length;
+            updateSummaryCounts(total, doneCount);
+
+            items.forEach(i => {
+                const row = document.createElement("div");
+                row.className =
+                    "p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+
+                const titleClass = i.isDone ? "todo-item-done" : "";
+                const catColor = i.categoryColorHex || "#6c757d";
+                const catName = i.categoryName || "No category";
+
+                row.innerHTML = `
+                        <div>
+                            <div class="${titleClass}">
+                                <strong>${i.title}</strong>
+                                ${i.dueAt
+                        ? `<span class="badge bg-light text-dark ms-2 small">Due: ${new Date(
+                            i.dueAt
+                        ).toLocaleString()}</span>`
+                        : ""
+                    }
+                            </div>
+                            <div class="small text-muted mt-1">
+                                <span class="badge-category" style="background-color:${catColor}; color:#fff;">
+                                    ${catName}
+                                </span>
+                                • Created: ${new Date(
+                        i.createdAt
+                    ).toLocaleString()}
+                            </div>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-success btn-toggle">
+                                ${i.isDone ? '<i class="bi bi-arrow-counterclockwise"></i>' : '<i class="bi bi-check-lg"></i>'}
+                            </button>
+                            <button class="btn btn-outline-danger btn-delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                row.querySelector(".btn-toggle").onclick = async () => {
+                    try {
+                        await apiPost(`/api/ListItems/${i.listItemId}/toggle`, {});
+                        await loadItems();
+                    } catch (err) {
+                        alert("Error toggling item:\n" + err);
+                    }
+                };
+
+                row.querySelector(".btn-delete").onclick = async () => {
+                    if (!confirm("Delete this item?")) return;
+                    try {
+                        await apiDelete(`/api/ListItems/${i.listItemId}`);
+                        await loadItems();
+                    } catch (err) {
+                        alert("Error deleting item:\n" + err);
+                    }
+                };
+
+                container.appendChild(row);
+            });
+        }
+
+        document
+            .getElementById("itemForm")
+            .addEventListener("submit", async e => {
+                e.preventDefault();
+                if (!currentListId) {
+                    alert("Please select a todo list before adding items.");
+                    return;
+                }
+
+                const title = document
+                    .getElementById("itemTitle")
+                    .value.trim();
+                if (!title) return;
+
+                const categoryIdStr =
+                    document.getElementById("itemCategory").value;
+                const categoryId = categoryIdStr ? parseInt(categoryIdStr) : null;
+                const dueAtStr = document
+                    .getElementById("itemDueAt")
+                    .value.trim();
+
+                try {
+                    const created = await apiPost("/api/ListItems", {
+                        title,
+                        todoListId: currentListId,
+                        categoryId
+                    });
+
+                    if (dueAtStr) {
+                        const dueAtIso = new Date(dueAtStr).toISOString();
+                        await apiPut(`/api/ListItems/${created.listItemId}`, {
+                            title: created.title,
+                            isDone: created.isDone,
+                            categoryId: created.categoryId,
+                            dueAt: dueAtIso,
+                            sortOrder: created.sortOrder,
+                            notes: created.notes
+                        });
+                    }
+
+                    document.getElementById("itemForm").reset();
+                    await loadItems();
+                } catch (err) {
+                    alert("Error adding item:\n" + err);
+                }
+            });
+
+        // Init
+        (async function init() {
+            try {
+                updateSummaryPerson();
+                updateSummaryList();
+                updateSummaryCounts(0, 0);
+
+                await loadPersons();
+                await loadCategories();
+            } catch (err) {
+                alert(
+                    "Error initializing UI. Make sure the API is running.\n\n" + err
+                );
+            }
+        })();
+    </script>
+</body>
+</html>
