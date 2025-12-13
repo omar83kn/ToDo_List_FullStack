@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToDo_List.Data;
 using ToDo_List.Dtos;
-
 
 namespace TodoApp.Controllers;
 
@@ -12,6 +12,15 @@ public class PersonsController : ControllerBase
 {
     private readonly AppDbContext db;
     public PersonsController(AppDbContext db) => this.db = db;
+
+    private ActionResult ValidationError(string message)
+        => BadRequest(new { error = message });
+
+    private bool IsValidEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return false;
+        return Regex.IsMatch(email, @"^\S+@\S+\.\S+$");
+    }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PersonDto>>> Get()
@@ -30,8 +39,23 @@ public class PersonsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<PersonDto>> Create(PersonDto dto)
+    public async Task<ActionResult<PersonDto>> Create([FromBody] PersonDto dto)
     {
+        if (dto is null)
+            return ValidationError("Request body is required.");
+
+        dto.FullName = dto.FullName?.Trim();
+        dto.Email = dto.Email?.Trim();
+
+        if (string.IsNullOrWhiteSpace(dto.FullName))
+            return ValidationError("FullName is required.");
+
+        if (dto.FullName.Length > 100)
+            return ValidationError("FullName must be at most 100 characters.");
+
+        if (!IsValidEmail(dto.Email))
+            return ValidationError("Email is not valid.");
+
         var p = new ToDo_List.Models.Person
         {
             FullName = dto.FullName,

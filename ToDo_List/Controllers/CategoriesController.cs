@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToDo_List.Data;
 using ToDo_List.Dtos;
@@ -15,6 +16,15 @@ public class CategoriesController : ControllerBase
     public CategoriesController(AppDbContext db)
     {
         _db = db;
+    }
+
+    private ActionResult ValidationError(string message)
+        => BadRequest(new { error = message });
+
+    private bool IsValidHex(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color)) return true; 
+        return Regex.IsMatch(color, "^#([0-9A-Fa-f]{6})$");
     }
 
     // GET: api/Categories
@@ -39,6 +49,8 @@ public class CategoriesController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoryDto>> GetById(int id)
     {
+        if (id <= 0) return ValidationError("Category id must be a positive number.");
+
         var c = await _db.Categories
             .Where(x => x.CategoryId == id)
             .Select(x => new CategoryDto
@@ -50,21 +62,32 @@ public class CategoriesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (c is null) return NotFound();
+        if (c is null) return NotFound(new { error = $"Category {id} not found." });
         return Ok(c);
     }
 
     // POST: api/Categories
-    // body example:
-    // { "name": "Health", "colorHex": "#00FFAA" }
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> Create(CategoryDto dto)
+    public async Task<ActionResult<CategoryDto>> Create([FromBody] CategoryDto dto)
     {
+        if (dto is null)
+            return ValidationError("Request body is required.");
+
+        dto.Name = dto.Name?.Trim();
+
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return ValidationError("Name is required.");
+
+        if (dto.Name.Length > 100)
+            return ValidationError("Name must be at most 100 characters.");
+
+        if (!IsValidHex(dto.ColorHex))
+            return ValidationError("ColorHex must be in format #RRGGBB (e.g. #667eea).");
+
         var c = new Category
         {
             Name = dto.Name,
             ColorHex = dto.ColorHex
-            // CreatedAt ينعبي لحاله من الmodel
         };
 
         _db.Categories.Add(c);
@@ -77,13 +100,25 @@ public class CategoriesController : ControllerBase
     }
 
     // PUT: api/Categories/5
-    // body example:
-    // { "name": "Work Updated", "colorHex": "#123456" }
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, CategoryDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] CategoryDto dto)
     {
+        if (id <= 0) return ValidationError("Category id must be a positive number.");
+        if (dto is null) return ValidationError("Request body is required.");
+
+        dto.Name = dto.Name?.Trim();
+
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return ValidationError("Name is required.");
+
+        if (dto.Name.Length > 100)
+            return ValidationError("Name must be at most 100 characters.");
+
+        if (!IsValidHex(dto.ColorHex))
+            return ValidationError("ColorHex must be in format #RRGGBB (e.g. #667eea).");
+
         var c = await _db.Categories.FindAsync(id);
-        if (c is null) return NotFound();
+        if (c is null) return NotFound(new { error = $"Category {id} not found." });
 
         c.Name = dto.Name;
         c.ColorHex = dto.ColorHex;
@@ -93,12 +128,13 @@ public class CategoriesController : ControllerBase
     }
 
     // DELETE: api/Categories/5
-    // ملاحظة: ListItem.CategoryId رح يصير null لأنك حاطط DeleteBehavior.SetNull
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (id <= 0) return ValidationError("Category id must be a positive number.");
+
         var c = await _db.Categories.FindAsync(id);
-        if (c is null) return NotFound();
+        if (c is null) return NotFound(new { error = $"Category {id} not found." });
 
         _db.Categories.Remove(c);
         await _db.SaveChangesAsync();

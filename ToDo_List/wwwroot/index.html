@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>ToDo_List App</title>
+    <title> ToDo List App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap CSS -->
@@ -11,59 +11,94 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             min-height: 100vh;
-            background: radial-gradient(circle at top, #1f3c88 0, #0b1423 40%, #060811 100%);
-            color: #222;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .app-shell {
-            max-width: 1300px;
+            max-width: 1400px;
         }
 
         .glass-card {
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.96);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
         .section-card {
-            border-radius: 14px;
+            border-radius: 20px;
             background: #ffffff;
-            border: 1px solid #e2e6f0;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
         }
 
+            .section-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            }
+
         .section-card-header {
-            background: linear-gradient(90deg, #0d6efd 0%, #5b8def 60%, #8f9cf7 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
-            border-radius: 14px 14px 0 0 !important;
+            padding: 1.5rem 1.75rem !important;
+            border: none !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.3px;
         }
 
             .section-card-header span.icon {
-                font-size: 1.1rem;
-                margin-right: 0.25rem;
+                font-size: 1.3rem;
+                margin-right: 0.75rem;
+                vertical-align: middle;
             }
 
         .person-item,
         .todolist-item {
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            padding: 1rem !important;
+            margin-bottom: 0.75rem !important;
         }
 
             .person-item:hover,
             .todolist-item:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.12);
+                transform: translateX(6px);
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+                border-color: #667eea;
+                background: #f8faff;
             }
 
             .person-item.active,
             .todolist-item.active {
-                background: linear-gradient(90deg, #0d6efd, #3f8cff);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: #fff !important;
+                border-color: transparent;
+                box-shadow: 0 12px 28px rgba(102, 126, 234, 0.35);
             }
 
                 .person-item.active .text-muted,
@@ -71,285 +106,609 @@
                     color: rgba(255, 255, 255, 0.85) !important;
                 }
 
+            .person-item .fw-semibold,
+            .todolist-item .fw-semibold {
+                font-weight: 600;
+                font-size: 1rem;
+                margin-bottom: 0.25rem;
+            }
+
         .badge-category {
-            border-radius: 999px;
-            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
         }
 
         .todo-item-done {
             text-decoration: line-through;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         .scroll-area {
-            max-height: 360px;
+            max-height: 380px;
             overflow-y: auto;
+            padding-right: 8px;
         }
 
         .summary-pill {
-            border-radius: 999px;
-            padding: 0.4rem 0.8rem;
-            background: rgba(15,23,42,0.06);
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+            .summary-pill:hover {
+                background: rgba(255, 255, 255, 0.8);
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            }
+
         .summary-value {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: #1a202c;
+            font-family: 'Poppins', sans-serif;
         }
 
         .summary-label {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.09em;
-            color: #6b7280;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        .navbar-brand span {
-            font-weight: 600;
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
         }
+
+            .navbar-brand span {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
 
         .navbar {
-            background: linear-gradient(90deg, #111827 0, #1f2937 40%, #0f172a 100%);
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #cbd5f5;
-            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        #loginView {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        #loginCard {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.7rem 1.75rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            font-size: 0.95rem;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-primary:active {
+                transform: translateY(-1px);
+            }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.7rem 1.75rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            font-size: 0.95rem;
+        }
+
+            .btn-success:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            }
+
+            .btn-success:active {
+                transform: translateY(-1px);
+            }
+
+        .btn-outline-primary,
+        .btn-outline-success,
+        .btn-outline-danger {
+            border-radius: 10px;
+            border-width: 2px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-light {
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+        }
+
+            .btn-outline-light:hover {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: #fff;
+                transform: translateY(-2px);
+            }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.1rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border: none;
+            padding: 1.5rem 1.75rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .badge {
+            border-radius: 8px;
+            padding: 0.5rem 0.9rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .card-body {
+            padding: 1.75rem;
+        }
+
+        .p-2.rounded.mb-1.border {
+            border-radius: 12px !important;
+            border: 2px solid #e2e8f0 !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1rem !important;
+            background: #ffffff;
+        }
+
+            .p-2.rounded.mb-1.border:hover {
+                border-color: #cbd5e1 !important;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+                background: #f8faff;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .person-item, .todolist-item {
+            animation: slideInLeft 0.4s ease-out;
+        }
+
+        .summary-pill .rounded-circle {
+            width: 48px !important;
+            height: 48px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        hr {
+            opacity: 0.1;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .section-card-header {
+                padding: 1.25rem 1.25rem !important;
+                font-size: 1rem;
+            }
+
+            .card-body {
+                padding: 1.25rem;
+            }
+
+            .summary-pill {
+                padding: 1rem 1.25rem;
+            }
+
+            .btn-primary, .btn-success {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.9rem;
+            }
+
+            #loginView {
+                padding: 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:focus, .form-control:focus, .form-select:focus {
+            outline: none;
+        }
+
+        * {
+            transition-property: background-color, border-color, color, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 0.2s;
+        }
+
+        button, a, input, select {
+            transition-duration: 0.3s;
         }
     </style>
 </head>
 <body>
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg mb-4 border-bottom border-dark-subtle">
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid app-shell">
             <a class="navbar-brand text-white" href="#">
                 <i class="bi bi-check2-square me-2"></i>
-                <span>ToDo_List Dashboard</span>
+                <span>ToDo List</span>
             </a>
-            <span class="text-secondary small d-none d-md-inline">
-                Using <code>/api/*</code> endpoints
-            </span>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <span class="text-white-50 small d-none d-md-inline">
+                    <i class="bi bi-cloud-check me-1"></i>Connected
+                </span>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm" style="display:none;">
+                    <i class="bi bi-box-arrow-right me-1"></i>Switch user
+                </button>
+            </div>
         </div>
     </nav>
 
-    <div class="container app-shell">
-        <!-- SUMMARY BAR -->
-        <div class="glass-card p-3 mb-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-4">
-                    <div class="summary-pill d-flex align-items-center gap-2">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
-                            <i class="bi bi-person"></i>
+    <!-- LOGIN VIEW -->
+    <div id="loginView" class="container app-shell">
+        <div id="loginCard" class="section-card">
+            <div class="section-card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span>Select or Create Profile</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="mb-3" style="font-weight: 600; color: #2d3748;">
+                        <i class="bi bi-people-fill me-2"></i>Your Profiles
+                    </h6>
+                    <div id="personsList" class="scroll-area"></div>
+                </div>
+
+                <hr />
+
+                <div>
+                    <h6 class="mb-3" style="font-weight: 600; color: #2d3748;">
+                        <i class="bi bi-person-plus-fill me-2"></i>Create New Profile
+                    </h6>
+                    <form id="personForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text"
+                                   id="personName"
+                                   class="form-control"
+                                   placeholder="Enter your name"
+                                   required />
                         </div>
-                        <div>
-                            <div class="summary-label">Selected Person</div>
-                            <div class="summary-value" id="summaryPerson">—</div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email"
+                                   id="personEmail"
+                                   class="form-control"
+                                   placeholder="your@email.com"
+                                   required />
+                        </div>
+
+                        <div class="col-12 d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-2"></i>Create Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView" style="display: none;">
+        <div class="container-fluid app-shell py-4">
+            <div class="row g-4">
+                <div class="col-lg-3">
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="summary-pill">
+                                <div class="summary-label">Current User</div>
+                                <div class="summary-value" id="summaryPerson">—</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="summary-pill">
+                                <div class="summary-label">Active List</div>
+                                <div class="summary-value" id="summaryList">—</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="summary-pill">
+                                <div class="summary-label">Total Items</div>
+                                <div class="summary-value" id="summaryItemsTotal">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="summary-pill">
+                                <div class="summary-label">Completed</div>
+                                <div class="summary-value" id="summaryItemsDone">0</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="summary-pill">
+                                <div class="summary-label">Progress</div>
+                                <div class="summary-value" id="summaryItemsPercent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <i class="bi bi-list-check icon"></i>
+                            <span id="currentPersonLabel">Your Lists</span>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="todoLists" class="scroll-area"></div>
+
+                            <hr />
+
+                            <form id="todoListForm" class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">New List Name</label>
+                                    <input type="text"
+                                           id="todoListTitle"
+                                           class="form-control"
+                                           placeholder="e.g., Shopping, Work tasks..."
+                                           required />
+                                </div>
+
+                                <div class="col-12 d-grid">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-plus-lg me-2"></i>Add List
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-3 small text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Create a new list to organize your tasks.
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="summary-pill d-flex align-items-center gap-2">
-                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
-                            <i class="bi bi-list-task"></i>
+
+                <div class="col-lg-9">
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <i class="bi bi-check-circle icon"></i>
+                            <span id="currentListLabel">Select a list to view items</span>
                         </div>
-                        <div>
-                            <div class="summary-label">Selected List</div>
-                            <div class="summary-value" id="summaryList">—</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-pill d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="summary-label">Items</div>
-                            <div class="summary-value">
-                                <span id="summaryItemsTotal">0</span>
-                                <span class="text-muted small">total</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="summary-label">Completed</div>
-                            <div class="summary-value text-success">
-                                <span id="summaryItemsDone">0</span>
-                                <span class="text-muted small">done</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="summary-label">Progress</div>
-                            <div class="summary-value">
-                                <span id="summaryItemsPercent">0%</span>
+
+                        <div class="card-body">
+                            <div id="itemsList" class="mb-4"></div>
+
+                            <hr />
+
+                            <form id="itemForm" class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Item Title</label>
+
+                                    <div class="input-group">
+                                        <input type="text"
+                                               id="itemTitle"
+                                               class="form-control"
+                                               placeholder="What needs to be done?"
+                                               required />
+                                        <button class="btn btn-outline-secondary"
+                                                type="button"
+                                                id="itemFileButton"
+                                                title="Attach image / PDF">
+                                            <i class="bi bi-paperclip"></i>
+                                        </button>
+                                    </div>
+
+                                    <input type="file"
+                                           id="itemFileInput"
+                                           accept="image/*,.pdf"
+                                           multiple
+                                           style="display:none" />
+
+                                    <div class="small text-muted mt-1" id="itemFilesHint">No files selected</div>
+                                    <div id="pendingFilesList" class="mt-2"></div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" id="itemCategory">
+                                        <option value="">No category</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Due Date</label>
+                                    <input class="form-control" id="itemDueAt" type="datetime-local" />
+                                </div>
+
+                                <div class="col-md-6 d-grid">
+                                    <button type="button"
+                                            class="btn btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#categoryQuickModal">
+                                        <i class="bi bi-tags me-1"></i>Manage Categories
+                                    </button>
+                                </div>
+
+                                <div class="col-md-6 d-grid">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Item
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-3 small text-muted">
+                                <i class="bi bi-lightbulb me-1"></i>Select a todo list on the left, then add items here.
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- MAIN LAYOUT -->
-        <div class="row g-3">
-            <!-- LEFT SIDE: Persons + TodoLists -->
-            <div class="col-lg-4">
-                <!-- Persons -->
-                <div class="section-card mb-3">
-                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="icon"><i class="bi bi-people"></i></span>
-                            <span class="fw-semibold">Persons</span>
-                        </div>
-                        <span class="small opacity-75">
-                            Create a profile, then create lists for that person
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-2 scroll-area" id="personsList"></div>
-
-                        <hr />
-                        <form id="personForm" class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label small mb-1">Full name</label>
-                                <input class="form-control" id="personName"
-                                       placeholder="Example: Omar Kukhun" required />
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small mb-1">Email</label>
-                                <input class="form-control" id="personEmail"
-                                       placeholder="Example: user@example.com"
-                                       type="email" required />
-                            </div>
-                            <div class="col-12 d-grid">
-                                <button class="btn btn-primary btn-sm" type="submit">
-                                    <i class="bi bi-person-plus me-1"></i>Add Person
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+    <!-- Quick Category Modal -->
+    <div class="modal fade" id="categoryQuickModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title mb-0">
+                        <i class="bi bi-tags me-2"></i>
+                        Manage Categories
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- TodoLists for selected person -->
-                <div class="section-card">
-                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="icon"><i class="bi bi-collection"></i></span>
-                            <span class="fw-semibold">Todo Lists</span>
-                        </div>
-                        <span class="small opacity-75">
-                            <span id="currentPersonLabel"></span>
-                        </span>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <div id="quickCategoriesList" class="border rounded p-3" style="max-height:220px; overflow-y:auto;"></div>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-2 scroll-area" id="todoLists"></div>
 
-                        <hr />
-                        <form id="todoListForm" class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label small mb-1">New list title</label>
-                                <input class="form-control" id="todoListTitle"
-                                       placeholder="Example: Study tasks, Work tasks..."
-                                       required />
-                            </div>
-                            <div class="col-12 d-grid">
-                                <button class="btn btn-success btn-sm" type="submit">
-                                    <i class="bi bi-plus-circle me-1"></i>Add List
-                                </button>
-                            </div>
-                        </form>
-                        <div class="mt-2 small text-muted">
-                            First select a person, then create one or more todo lists for that person.
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <hr />
 
-            <!-- RIGHT SIDE: Categories + ListItems -->
-            <div class="col-lg-8">
-                <!-- Categories -->
-                <div class="section-card mb-3">
-                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="icon"><i class="bi bi-tags"></i></span>
-                            <span class="fw-semibold">Categories</span>
+                    <form id="quickCategoryForm" class="row g-3">
+                        <div class="col-8">
+                            <label class="form-label">Category Name</label>
+                            <input type="text"
+                                   id="quickCategoryName"
+                                   class="form-control"
+                                   placeholder="e.g., Work, Personal..."
+                                   required />
                         </div>
-                        <span class="small opacity-75">
-                            Optional labels to group and color-code tasks
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="scroll-area mb-2" id="categoriesList"></div>
+                        <div class="col-4">
+                            <label class="form-label">Color</label>
+                            <input type="text"
+                                   id="quickCategoryColor"
+                                   class="form-control"
+                                   placeholder="#667eea" />
+                        </div>
+                        <div class="col-12 d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-2"></i><span id="quickCategorySubmitText">Add Category</span>
+                            </button>
+                        </div>
+                    </form>
 
-                        <hr />
-                        <form id="categoryForm" class="row g-2">
-                            <input type="hidden" id="categoryId" value="" />
-                            <div class="col-md-6">
-                                <label class="form-label small mb-1">Category name</label>
-                                <input class="form-control" id="categoryName"
-                                       placeholder="Example: Study, Work, Personal"
-                                       required />
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small mb-1">Color (optional)</label>
-                                <input class="form-control" id="categoryColor"
-                                       placeholder="Example: #2196F3" />
-                            </div>
-                            <div class="col-md-2 d-grid align-self-end">
-                                <button class="btn btn-primary btn-sm" type="submit">
-                                    <i class="bi bi-save me-1"></i>Save
-                                </button>
-                            </div>
-                        </form>
-                        <div class="mt-1 small text-muted">
-                            Click "Edit" to update an existing category, or type a new name and press "Save" to create a new one.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ListItems for selected TodoList -->
-                <div class="section-card">
-                    <div class="section-card-header px-3 py-2 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="icon"><i class="bi bi-check2-circle"></i></span>
-                            <span class="fw-semibold">Items for Selected List</span>
-                        </div>
-                        <span class="small opacity-75">
-                            <span id="currentListLabel"></span>
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="scroll-area mb-3" id="itemsList"></div>
-
-                        <hr />
-                        <form id="itemForm" class="row g-2">
-                            <div class="col-md-4">
-                                <label class="form-label small mb-1">Item title</label>
-                                <input class="form-control" id="itemTitle"
-                                       placeholder="Example: Finish Big Data homework"
-                                       required />
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small mb-1">Category</label>
-                                <select class="form-select" id="itemCategory">
-                                    <option value="">No category</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small mb-1">Due date (optional)</label>
-                                <input class="form-control" id="itemDueAt" type="datetime-local" />
-                            </div>
-                            <div class="col-md-2 d-grid align-self-end">
-                                <button class="btn btn-success btn-sm" type="submit">
-                                    <i class="bi bi-plus-lg me-1"></i>Add Item
-                                </button>
-                            </div>
-                        </form>
-                        <div class="mt-1 small text-muted">
-                            Select a todo list on the left, then add one or more items to it here.
-                        </div>
+                    <div class="mt-3 small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>New or updated categories appear immediately in the dropdown.
                     </div>
                 </div>
             </div>
@@ -367,6 +726,56 @@
         let currentListId = null;
         let currentListTitle = "";
         let categoriesCache = [];
+        let editingCategoryId = null;
+
+        // Multi-file pending upload buffer
+        let pendingFiles = [];
+
+        const loginView = document.getElementById("loginView");
+        const dashboardView = document.getElementById("dashboardView");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        function enterDashboard() {
+            if (!currentPersonId) return;
+
+            loginView.style.display = "none";
+            dashboardView.style.display = "block";
+            logoutBtn.style.display = "inline-block";
+
+            document.getElementById("currentPersonLabel").innerText =
+                "Lists for " + currentPersonName;
+
+            updateSummaryPerson();
+            updateSummaryList();
+            updateSummaryCounts(0, 0);
+
+            loadTodoLists();
+            loadCategories();
+        }
+
+        function backToLogin() {
+            currentPersonId = null;
+            currentPersonName = "";
+            currentListId = null;
+            currentListTitle = "";
+
+            pendingFiles = [];
+            renderPendingFiles();
+
+            document.getElementById("summaryPerson").textContent = "—";
+            document.getElementById("summaryList").textContent = "—";
+            updateSummaryCounts(0, 0);
+
+            document.getElementById("todoLists").innerHTML = "";
+            document.getElementById("itemsList").innerHTML = "";
+            document.getElementById("currentListLabel").innerText = "";
+
+            loginView.style.display = "flex";
+            dashboardView.style.display = "none";
+            logoutBtn.style.display = "none";
+        }
+
+        logoutBtn.addEventListener("click", backToLogin);
 
         async function apiGet(url) {
             const res = await fetch(apiBase + url);
@@ -391,11 +800,7 @@
                 body: JSON.stringify(body)
             });
             if (!res.ok) throw new Error(await res.text());
-            try {
-                return await res.json();
-            } catch {
-                return null;
-            }
+            try { return await res.json(); } catch { return null; }
         }
 
         async function apiDelete(url) {
@@ -425,7 +830,7 @@
             percentEl.textContent = pct + "%";
         }
 
-        // Persons
+        // Persons (login screen)
         async function loadPersons() {
             const persons = await apiGet("/api/Persons");
             const container = document.getElementById("personsList");
@@ -433,65 +838,48 @@
 
             if (!persons.length) {
                 container.innerHTML =
-                    '<div class="small text-muted">No persons yet. Create one using the form below.</div>';
+                    '<div class="small text-muted"><i class="bi bi-inbox me-1"></i>No profiles yet. Create one below.</div>';
             }
 
             persons.forEach(p => {
                 const div = document.createElement("div");
                 div.className =
-                    "person-item p-2 rounded mb-1 border bg-light d-flex justify-content-between align-items-center";
-                if (p.personId === currentPersonId) {
-                    div.classList.add("active");
-                }
+                    "person-item p-3 rounded mb-2 border bg-light d-flex justify-content-between align-items-center";
                 div.innerHTML = `
-                        <div>
-                            <div class="fw-semibold">${p.fullName}</div>
-                            <div class="small text-muted">${p.email}</div>
-                        </div>
-                        <span class="badge bg-secondary">#${p.personId}</span>
-                    `;
+                                <div>
+                                    <div class="fw-semibold">${p.fullName}</div>
+                                    <div class="small text-muted">${p.email}</div>
+                                </div>
+                                <span class="badge bg-primary">#${p.personId}</span>
+                            `;
                 div.onclick = () => {
                     currentPersonId = p.personId;
                     currentPersonName = p.fullName;
-
-                    currentListId = null;
-                    currentListTitle = "";
-                    document.getElementById("currentListLabel").innerText = "";
-                    document.getElementById("itemsList").innerHTML = "";
-
-                    document.getElementById("currentPersonLabel").innerText =
-                        "Lists for " + currentPersonName;
-
-                    updateSummaryPerson();
-                    updateSummaryList();
-                    updateSummaryCounts(0, 0);
-
-                    loadPersons();
-                    loadTodoLists();
+                    enterDashboard();
                 };
                 container.appendChild(div);
             });
         }
 
-        document
-            .getElementById("personForm")
-            .addEventListener("submit", async e => {
-                e.preventDefault();
-                const fullName = document.getElementById("personName").value.trim();
-                const email = document.getElementById("personEmail").value.trim();
-                if (!fullName || !email) return;
+        document.getElementById("personForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const fullName = document.getElementById("personName").value.trim();
+            const email = document.getElementById("personEmail").value.trim();
+            if (!fullName || !email) return;
 
-                try {
-                    await apiPost("/api/Persons", {
-                        fullName,
-                        email
-                    });
-                    document.getElementById("personForm").reset();
-                    await loadPersons();
-                } catch (err) {
-                    alert("Error adding person:\n" + err);
-                }
-            });
+            try {
+                const created = await apiPost("/api/Persons", { fullName, email });
+                document.getElementById("personForm").reset();
+
+                currentPersonId = created.personId;
+                currentPersonName = created.fullName;
+
+                await loadPersons();
+                enterDashboard();
+            } catch (err) {
+                alert("Failed to create profile.\n\n" + err);
+            }
+        });
 
         // TodoLists
         async function loadTodoLists() {
@@ -500,48 +888,43 @@
 
             if (!currentPersonId) {
                 container.innerHTML =
-                    '<div class="text-muted small">Select a person first.</div>';
+                    '<div class="text-muted small"><i class="bi bi-info-circle me-1"></i>Select a person first.</div>';
                 return;
             }
 
-            const lists = await apiGet(
-                `/api/TodoLists/by-person/${currentPersonId}`
-            );
+            const lists = await apiGet(`/api/TodoLists/by-person/${currentPersonId}`);
 
             if (!lists.length) {
                 container.innerHTML =
-                    '<div class="text-muted small">This person has no lists yet. Use the form below to add one.</div>';
+                    '<div class="text-muted small"><i class="bi bi-inbox me-1"></i>No lists yet. Create one below.</div>';
                 return;
             }
 
             lists.forEach(list => {
                 const div = document.createElement("div");
                 div.className =
-                    "todolist-item p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+                    "todolist-item p-3 rounded mb-2 border bg-white d-flex justify-content-between align-items-center";
                 if (list.todoListId === currentListId) div.classList.add("active");
 
                 div.innerHTML = `
-                        <div>
-                            <div class="fw-semibold">${list.title}</div>
-                            <div class="small text-muted">#${list.todoListId} • ${new Date(
-                    list.createdAt
-                ).toLocaleString()}</div>
-                        </div>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary btn-select">
-                                <i class="bi bi-folder2-open"></i> Open
-                            </button>
-                            <button class="btn btn-outline-danger btn-delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    `;
+                                <div>
+                                    <div class="fw-semibold">${list.title}</div>
+                                    <div class="small text-muted">#${list.todoListId} • ${new Date(list.createdAt).toLocaleString()}</div>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary btn-select">
+                                        <i class="bi bi-folder2-open"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            `;
 
                 div.querySelector(".btn-select").onclick = () => {
                     currentListId = list.todoListId;
                     currentListTitle = list.title;
-                    document.getElementById("currentListLabel").innerText =
-                        list.title;
+                    document.getElementById("currentListLabel").innerText = list.title;
 
                     updateSummaryList();
                     loadTodoLists();
@@ -550,7 +933,7 @@
 
                 div.querySelector(".btn-delete").onclick = async ev => {
                     ev.stopPropagation();
-                    if (!confirm("Delete this list and all of its items?")) return;
+                    if (!confirm("Delete this list and all of its items? This action cannot be undone.")) return;
                     try {
                         await apiDelete(`/api/TodoLists/${list.todoListId}`);
                         if (currentListId === list.todoListId) {
@@ -563,7 +946,7 @@
                         }
                         await loadTodoLists();
                     } catch (err) {
-                        alert("Error deleting list:\n" + err);
+                        alert("Failed to delete the list.\n\n" + err);
                     }
                 };
 
@@ -571,295 +954,390 @@
             });
         }
 
-        document
-            .getElementById("todoListForm")
-            .addEventListener("submit", async e => {
-                e.preventDefault();
-                if (!currentPersonId) {
-                    alert("Please select a person before creating a list.");
-                    return;
-                }
-                const title = document
-                    .getElementById("todoListTitle")
-                    .value.trim();
-                if (!title) return;
+        document.getElementById("todoListForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const title = document.getElementById("todoListTitle").value.trim();
+            if (!title || !currentPersonId) return;
 
-                try {
-                    await apiPost("/api/TodoLists", {
-                        personId: currentPersonId,
-                        title
-                    });
-                    document.getElementById("todoListForm").reset();
-                    await loadTodoLists();
-                } catch (err) {
-                    alert("Error adding list:\n" + err);
-                }
-            });
+            try {
+                const created = await apiPost("/api/TodoLists", { personId: currentPersonId, title });
+                document.getElementById("todoListForm").reset();
 
-        // Categories
-        async function loadCategories() {
-            const cats = await apiGet("/api/Categories");
-            categoriesCache = cats;
+                currentListId = created.todoListId;
+                currentListTitle = created.title;
+                document.getElementById("currentListLabel").innerText = title;
 
-            const container = document.getElementById("categoriesList");
-            container.innerHTML = "";
+                updateSummaryList();
+                await loadTodoLists();
+                loadItems();
+            } catch (err) {
+                alert("Failed to create the list.\n\n" + err);
+            }
+        });
 
-            if (!cats.length) {
-                container.innerHTML =
-                    '<div class="text-muted small">No categories yet. Create one using the form below.</div>';
+        // File upload helpers (multi)
+        const itemFileButton = document.getElementById("itemFileButton");
+        const itemFileInput = document.getElementById("itemFileInput");
+        const itemFilesHint = document.getElementById("itemFilesHint");
+        const pendingFilesList = document.getElementById("pendingFilesList");
+
+        itemFileButton.addEventListener("click", () => itemFileInput.click());
+
+        itemFileInput.addEventListener("change", () => {
+            const files = Array.from(itemFileInput.files || []);
+            if (!files.length) return;
+
+            for (const f of files) {
+                const exists = pendingFiles.some(x => x.name === f.name && x.size === f.size);
+                if (!exists) pendingFiles.push(f);
             }
 
-            cats.forEach(cat => {
-                const color = cat.colorHex || "#999999";
-                const item = document.createElement("div");
-                item.className =
-                    "p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+            itemFileInput.value = "";
+            renderPendingFiles();
+        });
 
-                item.innerHTML = `
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge-category" style="background-color:${color}; color:#fff;">
-                                ${cat.name}
-                            </span>
-                            <span class="small text-muted">#${cat.categoryId} • ${cat.colorHex || ""}</span>
-                        </div>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-secondary btn-edit">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-delete">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                    `;
+        function renderPendingFiles() {
+            pendingFilesList.innerHTML = "";
 
-                item.querySelector(".btn-edit").onclick = () => {
-                    document.getElementById("categoryId").value = cat.categoryId;
-                    document.getElementById("categoryName").value = cat.name;
-                    document.getElementById("categoryColor").value =
-                        cat.colorHex || "";
-                };
+            if (!pendingFiles.length) {
+                itemFilesHint.textContent = "No files selected";
+                return;
+            }
 
-                item.querySelector(".btn-delete").onclick = async () => {
-                    if (
-                        !confirm(
-                            "Delete this category? Items using it will have CategoryId = null."
-                        )
-                    )
+            itemFilesHint.textContent = `Selected files: ${pendingFiles.length}`;
+
+            pendingFiles.forEach((file, idx) => {
+                const row = document.createElement("div");
+                row.className = "d-flex align-items-center justify-content-between border rounded p-2 mb-2";
+                row.style.background = "#f8faff";
+
+                const left = document.createElement("div");
+                left.innerHTML = `
+                                <div class="fw-semibold">${file.name}</div>
+                                <div class="small text-muted">${Math.round(file.size / 1024)} KB</div>
+                            `;
+
+                const right = document.createElement("div");
+                right.className = "btn-group btn-group-sm";
+
+                const previewBtn = document.createElement("button");
+                previewBtn.type = "button";
+                previewBtn.className = "btn btn-outline-primary";
+                previewBtn.innerHTML = '<i class="bi bi-eye"></i>';
+                previewBtn.title = "Preview (images)";
+                previewBtn.onclick = () => {
+                    if (!file.type.startsWith("image/")) {
+                        alert("Preview is available for images only.");
                         return;
-                    try {
-                        await apiDelete(`/api/Categories/${cat.categoryId}`);
-                        await loadCategories();
-                        populateCategorySelect();
-                        if (currentListId) await loadItems();
-                    } catch (err) {
-                        alert("Error deleting category:\n" + err);
                     }
+                    const url = URL.createObjectURL(file);
+                    window.open(url, "_blank");
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
                 };
 
-                container.appendChild(item);
-            });
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.className = "btn btn-outline-danger";
+                removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+                removeBtn.title = "Remove";
+                removeBtn.onclick = () => {
+                    pendingFiles.splice(idx, 1);
+                    renderPendingFiles();
+                };
 
-            populateCategorySelect();
+                right.appendChild(previewBtn);
+                right.appendChild(removeBtn);
+
+                row.appendChild(left);
+                row.appendChild(right);
+                pendingFilesList.appendChild(row);
+            });
         }
 
-        function populateCategorySelect() {
-            const select = document.getElementById("itemCategory");
-            const current = select.value;
-            select.innerHTML =
-                '<option value="">No category</option>' +
-                categoriesCache
-                    .map(
-                        c =>
-                            `<option value="${c.categoryId}">${c.name}</option>`
-                    )
-                    .join("");
-            if (current) select.value = current;
-        }
+        // POST /api/list-items/{itemId}/files
+        // Sends a single request with all files appended as "files" to match: [FromForm] List<IFormFile> files
+        async function uploadItemFiles(itemId, files) {
+            if (!files || !files.length) return;
 
-        document
-            .getElementById("categoryForm")
-            .addEventListener("submit", async e => {
-                e.preventDefault();
-                const idVal = document.getElementById("categoryId").value;
-                const name = document
-                    .getElementById("categoryName")
-                    .value.trim();
-                const colorHex = document
-                    .getElementById("categoryColor")
-                    .value.trim();
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append("files", file);
+            }
 
-                if (!name) return;
-
-                try {
-                    if (idVal) {
-                        await apiPut(`/api/Categories/${idVal}`, {
-                            name,
-                            colorHex
-                        });
-                    } else {
-                        await apiPost("/api/Categories", {
-                            name,
-                            colorHex
-                        });
-                    }
-                    document.getElementById("categoryForm").reset();
-                    document.getElementById("categoryId").value = "";
-                    await loadCategories();
-                    if (currentListId) await loadItems();
-                } catch (err) {
-                    alert("Error saving category:\n" + err);
-                }
+            const res = await fetch(`${apiBase}/api/list-items/${itemId}/files`, {
+                method: "POST",
+                body: formData
             });
 
-        // ListItems
+            if (!res.ok) throw new Error(await res.text());
+        }
+
+        // Items (ListItems)
         async function loadItems() {
             const container = document.getElementById("itemsList");
             container.innerHTML = "";
 
             if (!currentListId) {
                 container.innerHTML =
-                    '<div class="text-muted small">Select a todo list on the left to see its items.</div>';
+                    '<div class="text-muted small"><i class="bi bi-info-circle me-1"></i>Select a list to view items.</div>';
                 updateSummaryCounts(0, 0);
                 return;
             }
 
-            const items = await apiGet(
-                `/api/ListItems/by-list/${currentListId}`
-            );
+            const items = await apiGet(`/api/ListItems/by-list/${currentListId}`);
 
             if (!items.length) {
                 container.innerHTML =
-                    '<div class="text-muted small">This list has no items yet. Use the form below to add tasks.</div>';
+                    '<div class="text-muted small"><i class="bi bi-inbox me-1"></i>No items yet. Add one below.</div>';
                 updateSummaryCounts(0, 0);
                 return;
             }
 
-            let total = items.length;
-            let doneCount = items.filter(i => i.isDone).length;
-            updateSummaryCounts(total, doneCount);
+            let doneCount = 0;
 
-            items.forEach(i => {
+            items.forEach(item => {
+                if (item.isDone) doneCount++;
+
                 const row = document.createElement("div");
-                row.className =
-                    "p-2 rounded mb-1 border bg-white d-flex justify-content-between align-items-center";
+                row.className = "p-2 rounded mb-1 border d-flex align-items-center justify-content-between";
 
-                const titleClass = i.isDone ? "todo-item-done" : "";
-                const catColor = i.categoryColorHex || "#6c757d";
-                const catName = i.categoryName || "No category";
+                const content = document.createElement("div");
+                content.className = "flex-grow-1 me-3";
 
-                row.innerHTML = `
-                        <div>
-                            <div class="${titleClass}">
-                                <strong>${i.title}</strong>
-                                ${i.dueAt
-                        ? `<span class="badge bg-light text-dark ms-2 small">Due: ${new Date(
-                            i.dueAt
-                        ).toLocaleString()}</span>`
-                        : ""
-                    }
-                            </div>
-                            <div class="small text-muted mt-1">
-                                <span class="badge-category" style="background-color:${catColor}; color:#fff;">
-                                    ${catName}
-                                </span>
-                                • Created: ${new Date(
-                        i.createdAt
-                    ).toLocaleString()}
-                            </div>
-                        </div>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-success btn-toggle">
-                                ${i.isDone ? '<i class="bi bi-arrow-counterclockwise"></i>' : '<i class="bi bi-check-lg"></i>'}
-                            </button>
-                            <button class="btn btn-outline-danger btn-delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    `;
+                let html = `<div class="${item.isDone ? "todo-item-done" : ""}">${item.title}</div>`;
 
-                row.querySelector(".btn-toggle").onclick = async () => {
+                if (item.categoryName) {
+                    const color = item.categoryColorHex || "#667eea";
+                    html += `<span class="badge-category" style="background-color: ${color}; color: white;">${item.categoryName}</span>`;
+                }
+
+                if (item.dueAt) {
+                    html += `<div class="small text-muted"><i class="bi bi-calendar me-1"></i>${new Date(item.dueAt).toLocaleString()}</div>`;
+                }
+
+                // Attached files (multiple)
+                if (item.files && item.files.length) {
+                    html += `<div class="small mt-2"><i class="bi bi-paperclip me-1"></i><b>${item.files.length}</b> file(s)</div>`;
+
+                    item.files.forEach(f => {
+                        const kb = Math.round((f.sizeBytes || 0) / 1024);
+                        html += `
+                                      <div class="small">
+                                        <a href="${apiBase}/api/list-items/${item.listItemId}/files/${f.fileId}/download" target="_blank" rel="noopener noreferrer">
+                                          ${f.fileName}
+                                        </a>
+                                        <span class="text-muted">(${kb} KB)</span>
+                                      </div>`;
+                    });
+                }
+
+                content.innerHTML = html;
+
+                const actions = document.createElement("div");
+                actions.className = "btn-group btn-group-sm";
+
+                const doneBtn = document.createElement("button");
+                doneBtn.type = "button";
+                doneBtn.className = item.isDone ? "btn btn-outline-success" : "btn btn-outline-secondary";
+                doneBtn.innerHTML = item.isDone
+                    ? '<i class="bi bi-check-circle-fill me-1"></i>Done'
+                    : '<i class="bi bi-check-circle me-1"></i>Mark done';
+
+                doneBtn.onclick = async () => {
                     try {
-                        await apiPost(`/api/ListItems/${i.listItemId}/toggle`, {});
+                        await apiPost(`/api/ListItems/${item.listItemId}/toggle`, {});
                         await loadItems();
                     } catch (err) {
-                        alert("Error toggling item:\n" + err);
+                        alert("Failed to update the item.\n\n" + err);
                     }
                 };
 
-                row.querySelector(".btn-delete").onclick = async () => {
-                    if (!confirm("Delete this item?")) return;
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.className = "btn btn-outline-danger";
+                deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                deleteBtn.onclick = async () => {
+                    if (!confirm("Delete this item? This action cannot be undone.")) return;
                     try {
-                        await apiDelete(`/api/ListItems/${i.listItemId}`);
+                        await apiDelete(`/api/ListItems/${item.listItemId}`);
                         await loadItems();
                     } catch (err) {
-                        alert("Error deleting item:\n" + err);
+                        alert("Failed to delete the item.\n\n" + err);
                     }
                 };
+
+                actions.appendChild(doneBtn);
+                actions.appendChild(deleteBtn);
+
+                row.appendChild(content);
+                row.appendChild(actions);
 
                 container.appendChild(row);
             });
+
+            updateSummaryCounts(items.length, doneCount);
         }
 
-        document
-            .getElementById("itemForm")
-            .addEventListener("submit", async e => {
-                e.preventDefault();
-                if (!currentListId) {
-                    alert("Please select a todo list before adding items.");
-                    return;
-                }
+        // Categories
+        async function loadCategories() {
+            const categories = await apiGet("/api/Categories");
+            categoriesCache = categories;
 
-                const title = document
-                    .getElementById("itemTitle")
-                    .value.trim();
-                if (!title) return;
-
-                const categoryIdStr =
-                    document.getElementById("itemCategory").value;
-                const categoryId = categoryIdStr ? parseInt(categoryIdStr) : null;
-                const dueAtStr = document
-                    .getElementById("itemDueAt")
-                    .value.trim();
-
-                try {
-                    const created = await apiPost("/api/ListItems", {
-                        title,
-                        todoListId: currentListId,
-                        categoryId
-                    });
-
-                    if (dueAtStr) {
-                        const dueAtIso = new Date(dueAtStr).toISOString();
-                        await apiPut(`/api/ListItems/${created.listItemId}`, {
-                            title: created.title,
-                            isDone: created.isDone,
-                            categoryId: created.categoryId,
-                            dueAt: dueAtIso,
-                            sortOrder: created.sortOrder,
-                            notes: created.notes
-                        });
-                    }
-
-                    document.getElementById("itemForm").reset();
-                    await loadItems();
-                } catch (err) {
-                    alert("Error adding item:\n" + err);
-                }
+            const select = document.getElementById("itemCategory");
+            select.innerHTML = '<option value="">No category</option>';
+            categories.forEach(cat => {
+                const option = document.createElement("option");
+                option.value = cat.categoryId;
+                option.textContent = cat.name;
+                select.appendChild(option);
             });
 
-        // Init
+            updateQuickCategoriesList();
+        }
+
+        function updateQuickCategoriesList() {
+            const container = document.getElementById("quickCategoriesList");
+            container.innerHTML = "";
+
+            if (!categoriesCache.length) {
+                container.innerHTML =
+                    '<div class="small text-muted"><i class="bi bi-inbox me-1"></i>No categories yet.</div>';
+                return;
+            }
+
+            categoriesCache.forEach(cat => {
+                const div = document.createElement("div");
+                div.className = "d-flex justify-content-between align-items-center mb-2 p-2 rounded";
+                div.style.backgroundColor = "#f8faff";
+
+                const left = document.createElement("div");
+                const color = cat.colorHex || "#667eea";
+                left.innerHTML =
+                    `<span class="badge-category" style="background-color: ${color}; color: white;">${cat.name}</span>`;
+
+                const right = document.createElement("div");
+                right.className = "btn-group btn-group-sm";
+
+                const editBtn = document.createElement("button");
+                editBtn.type = "button";
+                editBtn.className = "btn btn-outline-primary";
+                editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+                editBtn.onclick = () => {
+                    editingCategoryId = cat.categoryId;
+                    document.getElementById("quickCategoryName").value = cat.name;
+                    document.getElementById("quickCategoryColor").value = color;
+                    document.getElementById("quickCategorySubmitText").textContent = "Update Category";
+                };
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.className = "btn btn-outline-danger btn-delete-cat";
+                deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                deleteBtn.onclick = async () => {
+                    if (!confirm("Delete this category? This action cannot be undone.")) return;
+                    try {
+                        await apiDelete(`/api/Categories/${cat.categoryId}`);
+                        await loadCategories();
+                        if (currentListId) await loadItems();
+                    } catch (err) {
+                        alert("Failed to save the category.\n\n" + err);
+                    }
+                };
+
+                right.appendChild(editBtn);
+                right.appendChild(deleteBtn);
+
+                div.appendChild(left);
+                div.appendChild(right);
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById("quickCategoryForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const name = document.getElementById("quickCategoryName").value.trim();
+            const colorInput = document.getElementById("quickCategoryColor").value.trim();
+            const btnText = document.getElementById("quickCategorySubmitText");
+            if (!name) return;
+
+            const colorHex = colorInput || "#667eea";
+
+            try {
+                if (editingCategoryId === null) {
+                    await apiPost("/api/Categories", { name, colorHex });
+                } else {
+                    await apiPut(`/api/Categories/${editingCategoryId}`, {
+                        categoryId: editingCategoryId, name, colorHex
+                    });
+                }
+
+                editingCategoryId = null;
+                btnText.textContent = "Add Category";
+                document.getElementById("quickCategoryForm").reset();
+
+                await loadCategories();
+                if (currentListId) await loadItems();
+            } catch (err) {
+                alert("Failed to save the category.\n\n" + err);
+            }
+        });
+
+        document.getElementById("itemForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const title = document.getElementById("itemTitle").value.trim();
+            const categoryIdStr = document.getElementById("itemCategory").value;
+            const dueAtStr = document.getElementById("itemDueAt").value;
+
+            if (!title || !currentListId) return;
+
+            const categoryId = categoryIdStr ? parseInt(categoryIdStr) : null;
+
+            try {
+                const created = await apiPost("/api/ListItems", {
+                    title,
+                    todoListId: currentListId,
+                    categoryId
+                });
+
+                if (dueAtStr) {
+                    const dueAtIso = new Date(dueAtStr).toISOString();
+                    await apiPut(`/api/ListItems/${created.listItemId}`, {
+                        title: created.title,
+                        isDone: created.isDone,
+                        categoryId: created.categoryId,
+                        dueAt: dueAtIso,
+                        sortOrder: created.sortOrder,
+                        notes: created.notes
+                    });
+                }
+
+                if (pendingFiles.length) {
+                    try {
+                        await uploadItemFiles(created.listItemId, pendingFiles);
+                    } catch (errUpload) {
+                        alert("The item was created, but the file upload failed.\n\n" + errUpload);
+                    }
+                }
+
+                document.getElementById("itemForm").reset();
+                pendingFiles = [];
+                renderPendingFiles();
+
+                await loadItems();
+            } catch (err) {
+                alert("Failed to create the item.\n\n" + err);
+            }
+        });
+
         (async function init() {
             try {
                 updateSummaryPerson();
                 updateSummaryList();
                 updateSummaryCounts(0, 0);
-
+                renderPendingFiles();
                 await loadPersons();
-                await loadCategories();
             } catch (err) {
-                alert(
-                    "Error initializing UI. Make sure the API is running.\n\n" + err
-                );
+                alert("Failed to initialize the application.\n\n" + err);
             }
         })();
     </script>

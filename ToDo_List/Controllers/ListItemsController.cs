@@ -17,8 +17,7 @@ public class ListItemsController : ControllerBase
         _db = db;
     }
 
-    // ---------- DTOs used by this controller ----------
-
+    // DTOs for create / update
     public record ItemCreateDto(string Title, int TodoListId, int? CategoryId);
     public record ItemUpdateDto(
         string Title,
@@ -29,7 +28,10 @@ public class ListItemsController : ControllerBase
         string? Notes
     );
 
-    // small helper to map entity -> DTO that UI expects
+    private ActionResult ValidationError(string message)
+        => BadRequest(new { error = message });
+
+    // ====== Mapping helper: Entity -> DTO ======
     private static ListItemDto ToDto(ListItem i)
     {
         return new ListItemDto
@@ -44,7 +46,20 @@ public class ListItemsController : ControllerBase
             TodoListId = i.TodoListId,
             CategoryId = i.CategoryId,
             CategoryName = i.Category?.Name,
-            CategoryColorHex = i.Category?.ColorHex
+            CategoryColorHex = i.Category?.ColorHex,
+
+            // ✅ NEW: multiple files
+            Files = i.Files
+                .OrderByDescending(f => f.CreatedAt)
+                .Select(f => new ListItemFileDto
+                {
+                    FileId = f.FileId,
+                    FileName = f.FileName,
+                    ContentType = f.ContentType ?? "",
+                    SizeBytes = f.FileSize,
+                    CreatedAt = f.CreatedAt
+                })
+                .ToList()
         };
     }
 
@@ -52,29 +67,50 @@ public class ListItemsController : ControllerBase
     [HttpGet("by-list/{listId:int}")]
     public async Task<ActionResult<List<ListItemDto>>> GetByList(int listId)
     {
-        // make sure the list exists (optional but nice)
+        if (listId <= 0)
+            return ValidationError("TodoList id must be a positive number.");
+
         bool listExists = await _db.TodoLists.AnyAsync(t => t.TodoListId == listId);
         if (!listExists)
-            return NotFound($"TodoList {listId} not found.");
+            return NotFound(new { error = $"TodoList {listId} not found." });
 
         var items = await _db.ListItems
             .Where(i => i.TodoListId == listId)
             .Include(i => i.Category)
+            .Include(i => i.Files) // ✅ NEW
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.ListItemId)
             .ToListAsync();
 
-        return items.Select(ToDto).ToList();
+        return Ok(items.Select(ToDto).ToList());
     }
 
     // ---------- POST: /api/ListItems ----------
     [HttpPost]
-    public async Task<ActionResult<ListItemDto>> Create(ItemCreateDto dto)
+    public async Task<ActionResult<ListItemDto>> Create([FromBody] ItemCreateDto dto)
     {
-        // check FK exists
+        if (dto is null)
+            return ValidationError("Request body is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return ValidationError("Title is required.");
+
+        if (dto.Title.Length > 200)
+            return ValidationError("Title must be at most 200 characters.");
+
+        if (dto.TodoListId <= 0)
+            return ValidationError("TodoListId must be a positive number.");
+
         var list = await _db.TodoLists.FindAsync(dto.TodoListId);
         if (list == null)
-            return BadRequest($"TodoList {dto.TodoListId} does not exist.");
+            return BadRequest(new { error = $"TodoList {dto.TodoListId} does not exist." });
+
+        if (dto.CategoryId.HasValue)
+        {
+            bool catExists = await _db.Categories.AnyAsync(c => c.CategoryId == dto.CategoryId.Value);
+            if (!catExists)
+                return BadRequest(new { error = $"Category {dto.CategoryId.Value} does not exist." });
+        }
 
         var entity = new ListItem
         {
@@ -89,8 +125,9 @@ public class ListItemsController : ControllerBase
         _db.ListItems.Add(entity);
         await _db.SaveChangesAsync();
 
-        // reload with Category for DTO
+        // reload for dto (category + files)
         await _db.Entry(entity).Reference(e => e.Category).LoadAsync();
+        await _db.Entry(entity).Collection(e => e.Files).LoadAsync();
 
         var dtoOut = ToDto(entity);
 
@@ -103,14 +140,31 @@ public class ListItemsController : ControllerBase
 
     // ---------- PUT: /api/ListItems/{id} ----------
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<ListItemDto>> Update(int id, ItemUpdateDto dto)
+    public async Task<ActionResult<ListItemDto>> Update(int id, [FromBody] ItemUpdateDto dto)
     {
+        if (id <= 0) return ValidationError("ListItem id must be a positive number.");
+        if (dto is null) return ValidationError("Request body is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return ValidationError("Title is required.");
+
+        if (dto.Title.Length > 200)
+            return ValidationError("Title must be at most 200 characters.");
+
+        if (dto.CategoryId.HasValue)
+        {
+            bool catExists = await _db.Categories.AnyAsync(c => c.CategoryId == dto.CategoryId.Value);
+            if (!catExists)
+                return BadRequest(new { error = $"Category {dto.CategoryId.Value} does not exist." });
+        }
+
         var entity = await _db.ListItems
             .Include(i => i.Category)
+            .Include(i => i.Files) // ✅ NEW
             .FirstOrDefaultAsync(i => i.ListItemId == id);
 
         if (entity == null)
-            return NotFound();
+            return NotFound(new { error = $"ListItem {id} not found." });
 
         entity.Title = dto.Title.Trim();
         entity.IsDone = dto.IsDone;
@@ -121,37 +175,44 @@ public class ListItemsController : ControllerBase
 
         await _db.SaveChangesAsync();
 
+        // refresh category if changed
         await _db.Entry(entity).Reference(e => e.Category).LoadAsync();
+        await _db.Entry(entity).Collection(e => e.Files).LoadAsync();
 
-        return ToDto(entity);
+        return Ok(ToDto(entity));
     }
 
     // ---------- POST: /api/ListItems/{id}/toggle ----------
     [HttpPost("{id:int}/toggle")]
     public async Task<ActionResult<ListItemDto>> Toggle(int id)
     {
+        if (id <= 0) return ValidationError("ListItem id must be a positive number.");
+
         var entity = await _db.ListItems
             .Include(i => i.Category)
+            .Include(i => i.Files) // ✅ NEW
             .FirstOrDefaultAsync(i => i.ListItemId == id);
 
         if (entity == null)
-            return NotFound();
+            return NotFound(new { error = $"ListItem {id} not found." });
 
         entity.IsDone = !entity.IsDone;
         await _db.SaveChangesAsync();
 
-        return ToDto(entity);
+        return Ok(ToDto(entity));
     }
 
     // ---------- DELETE: /api/ListItems/{id} ----------
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (id <= 0) return ValidationError("ListItem id must be a positive number.");
+
         var entity = await _db.ListItems.FindAsync(id);
         if (entity == null)
-            return NotFound();
+            return NotFound(new { error = $"ListItem {id} not found." });
 
-        _db.ListItems.Remove(entity);
+        _db.ListItems.Remove(entity); // ✅ files رح تنحذف تلقائي Cascade
         await _db.SaveChangesAsync();
         return NoContent();
     }
