@@ -18,16 +18,24 @@ public class CategoriesController : ControllerBase
         _db = db;
     }
 
+    // Helper to return a consistent 400 validation error payload.
     private ActionResult ValidationError(string message)
         => BadRequest(new { error = message });
 
+    /// <summary>
+    /// Validate optional hex color in format #RRGGBB.
+    /// Empty/null is considered valid (color is optional).
+    /// </summary>
     private bool IsValidHex(string? color)
     {
-        if (string.IsNullOrWhiteSpace(color)) return true; 
+        if (string.IsNullOrWhiteSpace(color)) return true;
         return Regex.IsMatch(color, "^#([0-9A-Fa-f]{6})$");
     }
 
-    // GET: api/Categories
+    /// <summary>
+    /// GET: api/Categories
+    /// Returns all categories projected to DTOs ordered by id.
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
     {
@@ -45,7 +53,10 @@ public class CategoriesController : ControllerBase
         return Ok(cats);
     }
 
-    // GET: api/Categories/5
+    /// <summary>
+    /// GET: api/Categories/{id}
+    /// Returns a single category or 404 if not found.
+    /// </summary>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoryDto>> GetById(int id)
     {
@@ -66,7 +77,10 @@ public class CategoriesController : ControllerBase
         return Ok(c);
     }
 
-    // POST: api/Categories
+    /// <summary>
+    /// POST: api/Categories
+    /// Validates input and creates a new category.
+    /// </summary>
     [HttpPost]
     public async Task<ActionResult<CategoryDto>> Create([FromBody] CategoryDto dto)
     {
@@ -99,7 +113,10 @@ public class CategoriesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = c.CategoryId }, dto);
     }
 
-    // PUT: api/Categories/5
+    /// <summary>
+    /// PUT: api/Categories/{id}
+    /// Updates category name and optional color after validation.
+    /// </summary>
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] CategoryDto dto)
     {
@@ -127,7 +144,10 @@ public class CategoriesController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/Categories/5
+    /// <summary>
+    /// DELETE: api/Categories/{id}
+    /// Removes the category if it exists.
+    /// </summary>
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

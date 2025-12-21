@@ -13,15 +13,25 @@ public class PersonsController : ControllerBase
     private readonly AppDbContext db;
     public PersonsController(AppDbContext db) => this.db = db;
 
+    // Helper to return a consistent 400 validation error payload.
     private ActionResult ValidationError(string message)
         => BadRequest(new { error = message });
 
+    /// <summary>
+    /// Lightweight email format validation. Returns false for null/empty values.
+    /// Note: simple regex, not a full RFC validator.
+    /// </summary>
     private bool IsValidEmail(string? email)
     {
         if (string.IsNullOrWhiteSpace(email)) return false;
         return Regex.IsMatch(email, @"^\S+@\S+\.\S+$");
     }
 
+    /// <summary>
+    /// GET: api/persons
+    /// Returns all persons projected to PersonDto.
+    /// Uses projection to fetch only required fields.
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PersonDto>>> Get()
     {
@@ -38,12 +48,18 @@ public class PersonsController : ControllerBase
         return Ok(data);
     }
 
+    /// <summary>
+    /// POST: api/persons
+    /// Creates a new Person after validating FullName and Email.
+    /// Returns 201 Created with the created DTO.
+    /// </summary>
     [HttpPost]
     public async Task<ActionResult<PersonDto>> Create([FromBody] PersonDto dto)
     {
         if (dto is null)
             return ValidationError("Request body is required.");
 
+        // Normalize inputs
         dto.FullName = dto.FullName?.Trim();
         dto.Email = dto.Email?.Trim();
 
@@ -65,9 +81,11 @@ public class PersonsController : ControllerBase
         db.Persons.Add(p);
         await db.SaveChangesAsync();
 
+        // Return generated values
         dto.PersonId = p.PersonId;
         dto.CreatedAt = p.CreatedAt;
 
+        // CreatedAtAction points to the list endpoint since no single-get is defined.
         return CreatedAtAction(nameof(Get), new { id = p.PersonId }, dto);
     }
 }

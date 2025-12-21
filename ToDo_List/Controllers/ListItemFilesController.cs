@@ -17,9 +17,10 @@ public class ListItemFilesController : ControllerBase
         _db = db;
     }
 
-    // -----------------------------
-    // GET: api/list-items/{id}/files
-    // -----------------------------
+    /// <summary>
+    /// GET: api/list-items/{id}/files
+    /// Returns metadata for files attached to a list item (no file bytes).
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<List<ListItemFileDto>>> GetFiles(int listItemId)
     {
@@ -46,10 +47,11 @@ public class ListItemFilesController : ControllerBase
         return Ok(files);
     }
 
-    // ---------------------------------------
-    // POST: api/list-items/{id}/files
-    // multipart/form-data
-    // ---------------------------------------
+    /// <summary>
+    /// POST: api/list-items/{id}/files
+    /// Accepts multipart/form-data and stores file bytes in the database.
+    /// Request size limited to 20 MB via attribute.
+    /// </summary>
     [HttpPost]
     [RequestSizeLimit(20_000_000)] // 20 MB
     public async Task<ActionResult<List<ListItemFileDto>>> UploadFiles(int listItemId)
@@ -105,9 +107,10 @@ public class ListItemFilesController : ControllerBase
         return Ok(dtos);
     }
 
-    // -------------------------------------------------
-    // GET: api/list-items/{id}/files/{fileId}   <-- convenient download route (no /download)
-    // -------------------------------------------------
+    /// <summary>
+    /// GET: api/list-items/{id}/files/{fileId}
+    /// Returns the file bytes for download (convenience route).
+    /// </summary>
     [HttpGet("{fileId:int}")]
     public async Task<IActionResult> DownloadFileById(int listItemId, int fileId)
     {
@@ -125,10 +128,10 @@ public class ListItemFilesController : ControllerBase
         );
     }
 
-    // -------------------------------------------------
-    // GET: api/list-items/{id}/files/{fileId}/download
-    // (kept for compatibility)
-    // -------------------------------------------------
+    /// <summary>
+    /// GET: api/list-items/{id}/files/{fileId}/download
+    /// Kept for compatibility; same behavior as the route without /download.
+    /// </summary>
     [HttpGet("{fileId:int}/download")]
     public async Task<IActionResult> DownloadFile(int listItemId, int fileId)
     {
@@ -146,9 +149,10 @@ public class ListItemFilesController : ControllerBase
         );
     }
 
-    // ---------------------------------------------
-    // DELETE: api/list-items/{id}/files/{fileId}
-    // ---------------------------------------------
+    /// <summary>
+    /// DELETE: api/list-items/{id}/files/{fileId}
+    /// Deletes the specified file metadata and bytes from the DB.
+    /// </summary>
     [HttpDelete("{fileId:int}")]
     public async Task<IActionResult> DeleteFile(int listItemId, int fileId)
     {
@@ -161,7 +165,7 @@ public class ListItemFilesController : ControllerBase
 
         _db.ListItemFiles.Remove(file);
         await _db.SaveChangesAsync();
-                    
+
         return NoContent();
     }
 }

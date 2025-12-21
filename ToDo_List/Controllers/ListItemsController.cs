@@ -17,7 +17,7 @@ public class ListItemsController : ControllerBase
         _db = db;
     }
 
-    // DTOs for create / update
+    // Local DTOs for create/update payloads (kept inside controller for clarity).
     public record ItemCreateDto(string Title, int TodoListId, int? CategoryId);
     public record ItemUpdateDto(
         string Title,
@@ -28,10 +28,13 @@ public class ListItemsController : ControllerBase
         string? Notes
     );
 
+    // Helper to return a consistent 400 validation error payload.
     private ActionResult ValidationError(string message)
         => BadRequest(new { error = message });
 
-    // ====== Mapping helper: Entity -> DTO ======
+    /// <summary>
+    /// Map ListItem entity to ListItemDto (includes Category and Files).
+    /// </summary>
     private static ListItemDto ToDto(ListItem i)
     {
         return new ListItemDto
@@ -47,8 +50,6 @@ public class ListItemsController : ControllerBase
             CategoryId = i.CategoryId,
             CategoryName = i.Category?.Name,
             CategoryColorHex = i.Category?.ColorHex,
-
-            // ✅ NEW: multiple files
             Files = i.Files
                 .OrderByDescending(f => f.CreatedAt)
                 .Select(f => new ListItemFileDto
@@ -63,7 +64,10 @@ public class ListItemsController : ControllerBase
         };
     }
 
-    // ---------- GET: /api/ListItems/by-list/{listId} ----------
+    /// <summary>
+    /// GET: /api/ListItems/by-list/{listId}
+    /// Returns all items for a todo list. Includes Category and Files.
+    /// </summary>
     [HttpGet("by-list/{listId:int}")]
     public async Task<ActionResult<List<ListItemDto>>> GetByList(int listId)
     {
@@ -77,7 +81,7 @@ public class ListItemsController : ControllerBase
         var items = await _db.ListItems
             .Where(i => i.TodoListId == listId)
             .Include(i => i.Category)
-            .Include(i => i.Files) // ✅ NEW
+            .Include(i => i.Files)
             .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.ListItemId)
             .ToListAsync();
@@ -85,7 +89,10 @@ public class ListItemsController : ControllerBase
         return Ok(items.Select(ToDto).ToList());
     }
 
-    // ---------- POST: /api/ListItems ----------
+    /// <summary>
+    /// POST: /api/ListItems
+    /// Creates a new ListItem after validating title, list and optional category.
+    /// </summary>
     [HttpPost]
     public async Task<ActionResult<ListItemDto>> Create([FromBody] ItemCreateDto dto)
     {
@@ -125,7 +132,7 @@ public class ListItemsController : ControllerBase
         _db.ListItems.Add(entity);
         await _db.SaveChangesAsync();
 
-        // reload for dto (category + files)
+        // Load related navigation properties for response (Category + Files)
         await _db.Entry(entity).Reference(e => e.Category).LoadAsync();
         await _db.Entry(entity).Collection(e => e.Files).LoadAsync();
 
@@ -138,7 +145,10 @@ public class ListItemsController : ControllerBase
         );
     }
 
-    // ---------- PUT: /api/ListItems/{id} ----------
+    /// <summary>
+    /// PUT: /api/ListItems/{id}
+    /// Updates an existing ListItem and returns the updated DTO.
+    /// </summary>
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ListItemDto>> Update(int id, [FromBody] ItemUpdateDto dto)
     {
@@ -160,12 +170,13 @@ public class ListItemsController : ControllerBase
 
         var entity = await _db.ListItems
             .Include(i => i.Category)
-            .Include(i => i.Files) // ✅ NEW
+            .Include(i => i.Files)
             .FirstOrDefaultAsync(i => i.ListItemId == id);
 
         if (entity == null)
             return NotFound(new { error = $"ListItem {id} not found." });
 
+        // Apply updates
         entity.Title = dto.Title.Trim();
         entity.IsDone = dto.IsDone;
         entity.CategoryId = dto.CategoryId;
@@ -175,14 +186,17 @@ public class ListItemsController : ControllerBase
 
         await _db.SaveChangesAsync();
 
-        // refresh category if changed
+        // Ensure navigation properties are fresh
         await _db.Entry(entity).Reference(e => e.Category).LoadAsync();
         await _db.Entry(entity).Collection(e => e.Files).LoadAsync();
 
         return Ok(ToDto(entity));
     }
 
-    // ---------- POST: /api/ListItems/{id}/toggle ----------
+    /// <summary>
+    /// POST: /api/ListItems/{id}/toggle
+    /// Toggle the IsDone flag for the item and return the updated DTO.
+    /// </summary>
     [HttpPost("{id:int}/toggle")]
     public async Task<ActionResult<ListItemDto>> Toggle(int id)
     {
@@ -190,7 +204,7 @@ public class ListItemsController : ControllerBase
 
         var entity = await _db.ListItems
             .Include(i => i.Category)
-            .Include(i => i.Files) // ✅ NEW
+            .Include(i => i.Files)
             .FirstOrDefaultAsync(i => i.ListItemId == id);
 
         if (entity == null)
@@ -202,7 +216,10 @@ public class ListItemsController : ControllerBase
         return Ok(ToDto(entity));
     }
 
-    // ---------- DELETE: /api/ListItems/{id} ----------
+    /// <summary>
+    /// DELETE: /api/ListItems/{id}
+    /// Deletes the list item. Files are removed via cascade if configured.
+    /// </summary>
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -212,7 +229,7 @@ public class ListItemsController : ControllerBase
         if (entity == null)
             return NotFound(new { error = $"ListItem {id} not found." });
 
-        _db.ListItems.Remove(entity); // ✅ files رح تنحذف تلقائي Cascade
+        _db.ListItems.Remove(entity); // files will be deleted by cascade if configured
         await _db.SaveChangesAsync();
         return NoContent();
     }
